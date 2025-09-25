@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Biblioteca</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Nuestros estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container py-4">
+        <header class="custom-header text-center p-4 mb-4 rounded">
+            <h1 class="display-5 fw-bold"><i class="fas fa-book"></i> Sistema de Biblioteca</h1>
+            <p class="lead">Gestión de préstamos de libros</p>
+        </header>
+
+        <nav>
+            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Inicio</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="catalog-tab    " data-bs-toggle="tab" data-bs-target="#catalog" type="button" role="tab" aria-controls="catalog" aria-selected="false">Catálogo</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="loan-tab" data-bs-toggle="tab" data-bs-target="#loan" type="button" role="tab" aria-controls="loan" aria-selected="false">Préstamos</button>
+                </li>
+            </ul>
+        </nav>
+        
+        <main class="tab-content" id="myTabContent">
+            <section class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <h2>Bienvenido al Sistema de Biblioteca</h2>
+                <p class="lead">Este sistema permite gestionar los préstamos de libros en una biblioteca estudiantil. A continuación se presentan las principales funcionalidades:</p>
+                
+                <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                    <article class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title"><i class="fas fa-book"></i> Gestión de Catálogo</h3>
+                                <p class="card-text">Consulta y administra el inventario de libros disponibles en la biblioteca.</p>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <article class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Control de Préstamos</h3>
+                                <p class="card-text">Registra y hace seguimiento a los préstamos de libros a los estudiantes.</p>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <article class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title"><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                                <p class="card-text">Administra la información de los usuarios del sistema de biblioteca.</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+            
+            <section class="tab-pane fade" id="catalog" role="tabpanel" aria-labelledby="catalog-tab">
+                <h2>Catálogo de Libros</h2>
+                <p class="lead">Explora nuestro catálogo de libros disponibles para préstamo:</p>
+                
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <article class="col">
+                        <figure class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Cien años de soledad</h3>
+                                <p class="card-text"><strong>Autor:</strong> Gabriel García Márquez</p>
+                                <p class="card-text"><strong>Categoría:</strong> Novela</p>
+                                <p class="card-text"><strong>Estado:</strong> <span class="badge bg-success">Disponible</span></p>
+                            </div>
+                        </figure>
+                    </article>
+                    
+                    <article class="col">
+                        <figure class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">1984</h3>
+                                <p class="card-text"><strong>Autor:</strong> George Orwell</p>
+                                <p class="card-text"><strong>Categoría:</strong> Ciencia Ficción</p>
+                                <p class="card-text"><strong>Estado:</strong> <span class="badge bg-danger">Prestado</span></p>
+                            </div>
+                        </figure>
+                    </article>
+                    
+                    <article class="col">
+                        <figure class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">El principito</h3>
+                                <p class="card-text"><strong>Autor:</strong> Antoine de Saint-Exupéry</p>
+                                <p class="card-text"><strong>Categoría:</strong> Literatura Infantil</p>
+                                <p class="card-text"><strong>Estado:</strong> <span class="badge bg-success">Disponible</span></p>
+                            </div>
+                        </figure>
+                    </article>
+
+                    <article class="col">
+                        <figure class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Don Quijote de la Mancha</h3>
+                                <p class="card-text"><strong>Autor:</strong> Miguel de Cervantes</p>
+                                <p class="card-text"><strong>Categoría:</strong> Clásico</p>
+                                <p class="card-text"><strong>Estado:</strong> <span class="badge bg-success">Disponible</span></p>
+                            </div>
+                        </figure>
+                    </article>
+
+                    <article class="col">
+                        <figure class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Rayuela</h3>
+                                <p class="card-text"><strong>Autor:</strong> Julio Cortázar</p>
+                                <p class="card-text"><strong>Categoría:</strong> Novela</p>
+                                <p class="card-text"><strong>Estado:</strong> <span class="badge bg-warning">Reservado</span></p>
+                            </div>
+                        </figure>
+                    </article>
+
+                    <article class="col">
+                        <figure class="card h-100">
+                            <div class="card-body">
+                                <h3 class="card-title">Ficciones</h3>
+                                <p class="card-text"><strong>Autor:</strong> Jorge Luis Borges</p>
+                                <p class="card-text"><strong>Categoría:</strong> Cuentos</p>
+                                <p class="card-text"><strong>Estado:</strong> <span class="badge bg-success">Disponible</span></p>
+                            </div>
+                        </figure>
+                    </article>
+                </div>
+            </section>
+            
+            <section class="tab-pane fade" id="loan" role="tabpanel" aria-labelledby="loan-tab">
+                <h2>Solicitud de Préstamo</h2>
+                <p class="lead">Complete el formulario para solicitar el préstamo de un libro:</p>
+                
+                <form id="loan-form" class="needs-validation" novalidate>
+                    <fieldset>
+                        <div class="mb-3">
+                            <label for="student-name" class="form-label">Nombre completo:</label>
+                            <input type="text" class="form-control" id="student-name" required>
+                            <div class="invalid-feedback">Por favor ingrese su nombre</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="student-id" class="form-label">Número de Identificación:</label>
+                            <input type="text" class="form-control" id="student-id" required>
+                            <div class="invalid-feedback">Por favor ingrese un ID válido</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="book" class="form-label">Seleccione un libro:</label>
+                            <select class="form-select" id="book" required>
+                                <option value="">-- Seleccione un libro --</option>
+                                <option value="1">Cien años de soledad - Gabriel García Márquez</option>
+                                <option value="2">1984 - George Orwell</option>
+                                <option value="3">El principito - Antoine de Saint-Exupéry</option>
+                                <option value="4">Don Quijote de la Mancha - Miguel de Cervantes</option>
+                                <option value="5">Rayuela - Julio Cortázar</option>
+                                <option value="6">Ficciones - Jorge Luis Borges</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione un libro</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="loan-date" class="form-label">Fecha de Préstamo:</label>
+                            <input type="date" class="form-control" id="loan-date" required>
+                            <div class="invalid-feedback">Por favor ingrese una fecha válida</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="return-date" class="form-label">Fecha de Devolución:</label>
+                            <input type="date" class="form-control" id="return-date" required>
+                            <div class="invalid-feedback">Por favor ingrese una fecha válida</div>
+                        </div>
+                    </fieldset>
+                    
+                    <button type="submit" class="btn btn-primary">Solicitar Préstamo</button>
+                </form>
+                
+                <aside id="form-success" class="alert alert-success mt-3" style="display: none;">
+                    <i class="fas fa-check-circle"></i> ¡Formulario enviado con éxito! Su préstamo está siendo procesado.
+                </aside>
+            </section>
+        </main>
+
+        <footer class="custom-footer text-center p-3 mt-4">
+            <p class="mb-0">Sistema de Biblioteca © 2025</p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <!-- Nuestro script -->
+    <script src="js/script.js"></script>
+</body>
+</html>

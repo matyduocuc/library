@@ -6,15 +6,13 @@
     <title>Sistema de Biblioteca</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Nuestros estilos -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="container py-4">
         <header class="custom-header text-center p-4 mb-4 rounded">
-            <h1 class="display-5 fw-bold"><i class="fas fa-book"></i> Sistema de Biblioteca</h1>
+            <h1 class="display-5 fw-bold">Sistema de Biblioteca</h1>
             <p class="lead">Gestión de préstamos de libros</p>
         </header>
 
@@ -41,7 +39,7 @@
                     <article class="col">
                         <div class="card h-100">
                             <div class="card-body">
-                                <h3 class="card-title"><i class="fas fa-book"></i> Gestión de Catálogo</h3>
+                                <h3 class="card-title">Gestión de Catálogo</h3>
                                 <p class="card-text">Consulta y administra el inventario de libros disponibles en la biblioteca.</p>
                             </div>
                         </div>
@@ -50,7 +48,7 @@
                     <article class="col">
                         <div class="card h-100">
                             <div class="card-body">
-                                <h3 class="card-title"><i class="fas fa-clipboard-list"></i> Control de Préstamos</h3>
+                                <h3 class="card-title">Control de Préstamos</h3>
                                 <p class="card-text">Registra y hace seguimiento a los préstamos de libros a los estudiantes.</p>
                             </div>
                         </div>
@@ -59,7 +57,7 @@
                     <article class="col">
                         <div class="card h-100">
                             <div class="card-body">
-                                <h3 class="card-title"><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                                <h3 class="card-title">Gestión de Usuarios</h3>
                                 <p class="card-text">Administra la información de los usuarios del sistema de biblioteca.</p>
                             </div>
                         </div>
@@ -74,6 +72,7 @@
                 <div class="row row-cols-1 row-cols-md-3 g-4">
                     <article class="col">
                         <figure class="card h-100">
+                            <img class="card-img-top" src="assets/img/cien-anos-de-soledad.jpg" alt="Portada de Cien años de soledad" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h3 class="card-title">Cien años de soledad</h3>
                                 <p class="card-text"><strong>Autor:</strong> Gabriel García Márquez</p>
@@ -85,6 +84,7 @@
                     
                     <article class="col">
                         <figure class="card h-100">
+                            <img class="card-img-top" src="assets/img/1984.jpg" alt="Portada de 1984" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h3 class="card-title">1984</h3>
                                 <p class="card-text"><strong>Autor:</strong> George Orwell</p>
@@ -96,6 +96,7 @@
                     
                     <article class="col">
                         <figure class="card h-100">
+                            <img class="card-img-top" src="assets/img/el-principito.jpg" alt="Portada de El principito" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h3 class="card-title">El principito</h3>
                                 <p class="card-text"><strong>Autor:</strong> Antoine de Saint-Exupéry</p>
@@ -107,6 +108,7 @@
 
                     <article class="col">
                         <figure class="card h-100">
+                            <img class="card-img-top" src="assets/img/don-quijote.jpg" alt="Portada de Don Quijote de la Mancha" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h3 class="card-title">Don Quijote de la Mancha</h3>
                                 <p class="card-text"><strong>Autor:</strong> Miguel de Cervantes</p>
@@ -118,6 +120,7 @@
 
                     <article class="col">
                         <figure class="card h-100">
+                            <img class="card-img-top" src="assets/img/rayuela.jpg" alt="Portada de Rayuela" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h3 class="card-title">Rayuela</h3>
                                 <p class="card-text"><strong>Autor:</strong> Julio Cortázar</p>
@@ -129,6 +132,7 @@
 
                     <article class="col">
                         <figure class="card h-100">
+                            <img class="card-img-top" src="assets/img/ficciones.jpg" alt="Portada de Ficciones" style="height: 220px; object-fit: cover;">
                             <div class="card-body">
                                 <h3 class="card-title">Ficciones</h3>
                                 <p class="card-text"><strong>Autor:</strong> Jorge Luis Borges</p>
@@ -189,7 +193,7 @@
                 </form>
                 
                 <aside id="form-success" class="alert alert-success mt-3" style="display: none;">
-                    <i class="fas fa-check-circle"></i> ¡Formulario enviado con éxito! Su préstamo está siendo procesado.
+                    ¡Formulario enviado con éxito! Su préstamo está siendo procesado.
                 </aside>
             </section>
         </main>

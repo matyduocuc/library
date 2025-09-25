@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+ HEAD
 // Validación y registro estructurado de solicitudes de préstamo
 (function () {
     'use strict';
@@ -157,7 +157,7 @@
         }, false);
     });
 })();
-=======
+
 // Validación de formulario con Bootstrap
 (function () {
     'use strict'
@@ -185,4 +185,4 @@
         form.classList.add('was-validated')
     }, false)
 })()
->>>>>>> cf8f1de3d17180c5d9a42a2115a3a5801e1bb5b0
+

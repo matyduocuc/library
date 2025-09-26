@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<!--
+===============================================================================
+Panel de Administración - Sistema de Biblioteca
+-------------------------------------------------------------------------------
+Este archivo implementa el flujo del ADMINISTRADOR de forma autosuficiente:
+- Acceso (login simple en cliente)
+- Panel de Control (resumen de métricas)
+- Gestión de Libros (CRUD en localStorage)
+- Gestión de Usuarios (CRUD en localStorage)
+- Control de Préstamos (aprobar/rechazar los generados por el panel de usuario)
+- Informes y Estadísticas (resúmenes y barras de progreso)
+
+Tecnologías:
+- HTML: estructura del panel y componentes
+- CSS: estilos básicos de branding y soporte visual
+- JS: lógica de validación, CRUD y persistencia (localStorage)
+
+Nota: este panel funciona completamente en el navegador (sin backend).
+===============================================================================
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Biblioteca</title>
+
+  <!-- Bootstrap CSS para layout y componentes -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+  <style>
+    /*
+    ===========================================================================
+    Estilos del Panel de Administración (CSS inline por simplicidad)
+    - Paleta y ajustes visuales básicos
+    - Mejoras de tablas y formularios
+    ===========================================================================
+    */
+    :root {
+      --admin-primary: #1f2d3d;   /* Primario oscuro (header) */
+      --admin-accent: #0d6efd;    /* Acento (acciones principales) */
+      --admin-success: #198754;   /* Verde (éxito) */
+      --admin-danger: #dc3545;    /* Rojo (peligro / rechazo) */
+      --admin-warning: #ffc107;   /* Amarillo (pendiente) */
+      --admin-bg: #f5f7fa;        /* Fondo suave */
+    }
+
+    body {
+      background: var(--admin-bg);
+    }
+
+    /* Header del panel */
+    .admin-header {
+      background: linear-gradient(135deg, var(--admin-primary), #34495e);
+      color: #fff;
+      border-bottom: 4px solid var(--admin-accent);
+    }
+
+    /* Tabla con scroll horizontal en pantallas pequeñas */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    /* Botones pequeños en tablas */
+    .table .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    /* Separadores visuales entre secciones */
+    section.tab-pane h3 {
+      margin-top: 1rem;
+    }
+
+    /* Estado de préstamo (chips/badges) */
+    .badge-status {
+      font-size: 0.85rem;
+    }
+
+    /* Bloque de acceso centrado */
+    .access-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <!-- Encabezado del panel -->
+    <header class="admin-header text-center p-4 mb-4 rounded">
+      <h1 class="display-6 fw-bold">Panel de Administración</h1>
+      <p class="mb-0">Flujo del administrador del Sistema de Biblioteca</p>
+    </header>
+
+    <!--
+    Navegación por pestañas (Bootstrap)
+    - Acceso (login), Dashboard, Libros, Usuarios, Préstamos, Informes
+    - Las pestañas (excepto Acceso) requieren sesión de administrador activa.
+    -->
+    <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-acceso" data-bs-toggle="tab" data-bs-target="#acceso" type="button" role="tab" aria-controls="acceso" aria-selected="true">Acceso</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-dashboard" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="false">Panel de Control</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-libros" data-bs-toggle="tab" data-bs-target="#libros" type="button" role="tab" aria-controls="libros" aria-selected="false">Gestión de Libros</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-usuarios" data-bs-toggle="tab" data-bs-target="#usuarios" type="button" role="tab" aria-controls="usuarios" aria-selected="false">Gestión de Usuarios</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-prestamos" data-bs-toggle="tab" data-bs-target="#prestamos" type="button" role="tab" aria-controls="prestamos" aria-selected="false">Control de Préstamos</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-informes" data-bs-toggle="tab" data-bs-target="#informes" type="button" role="tab" aria-controls="informes" aria-selected="false">Informes y Estadísticas</button>
+      </li>
+    </ul>
+
+    <!-- Contenido de pestañas -->
+    <main class="tab-content">
+      <!-- 1) Acceso al panel administrativo del sistema -->
+      <section class="tab-pane fade show active" id="acceso" role="tabpanel" aria-labelledby="tab-acceso">
+        <!-- Formulario de acceso simple: simula login de administrador en cliente -->
+        <div class="access-wrapper">
+          <div class="card">
+            <div class="card-body">
+              <h2 class="h4">Acceso Administrativo</h2>
+              <p class="text-muted">Ingrese sus credenciales para habilitar las funciones administrativas.</p>
+              <form id="admin-login" class="needs-validation" novalidate>
+                <div class="mb-3">
+                  <label for="admin-user" class="form-label">Usuario</label>
+                  <input type="text" class="form-control" id="admin-user" required>
+                  <div class="invalid-feedback">Ingrese el usuario.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="admin-pass" class="form-label">Contraseña</label>
+                  <input type="password" class="form-control" id="admin-pass" required>
+                  <div class="invalid-feedback">Ingrese la contraseña.</div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-primary">Ingresar</button>
+                  <button type="button" id="admin-logout" class="btn btn-outline-secondary">Salir</button>
+                </div>
+                <div id="admin-login-help" class="form-text mt-2">Para demo: cualquier usuario/contraseña no vacíos habilita el panel.</div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) PANEL DE CONTROL (Dashboard) -->
+      <section class="tab-pane fade" id="dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
+        <!-- Tarjetas de métricas rápidas -->
+        <div class="row g-3">
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card text-bg-primary">
+              <div class="card-body">
+                <h3 class="h6">Libros totales</h3>
+                <p class="display-6 mb-0" id="metric-libros">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card text-bg-success">
+              <div class="card-body">
+                <h3 class="h6">Usuarios registrados</h3>
+                <p class="display-6 mb-0" id="metric-usuarios">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card text-bg-warning">
+              <div class="card-body">
+                <h3 class="h6">Préstamos pendientes</h3>
+                <p class="display-6 mb-0" id="metric-pendientes">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card text-bg-info">
+              <div class="card-body">
+                <h3 class="h6">Préstamos totales</h3>
+                <p class="display-6 mb-0" id="metric-prestamos">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) GESTIÓN DE LIBROS (HTML CSS JS) -->
+      <section class="tab-pane fade" id="libros" role="tabpanel" aria-labelledby="tab-libros">
+        <h2 class="h4">Gestión de Libros</h2>
+        <p class="text-muted">Agregar, editar o eliminar libros del catálogo.</p>
+
+        <!-- Formulario de alta/edición de libros -->
+        <form id="form-libro" class="row g-3 needs-validation" novalidate>
+          <!-- Campo oculto para ID (se completa al editar) -->
+          <input type="hidden" id="libro-id">
+          <div class="col-md-6">
+            <label for="libro-titulo" class="form-label">Título</label>
+            <input type="text" id="libro-titulo" class="form-control" required>
+            <div class="invalid-feedback">Ingrese un título.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="libro-autor" class="form-label">Autor</label>
+            <input type="text" id="libro-autor" class="form-control" required>
+            <div class="invalid-feedback">Ingrese un autor.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="libro-categoria" class="form-label">Categoría</label>
+            <input type="text" id="libro-categoria" class="form-control" required>
+            <div class="invalid-feedback">Ingrese una categoría.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="libro-estado" class="form-label">Estado</label>
+            <select id="libro-estado" class="form-select" required>
+              <option value="">-- Seleccione --</option>
+              <option value="disponible">Disponible</option>
+              <option value="prestado">Prestado</option>
+              <option value="reservado">Reservado</option>
+            </select>
+            <div class="invalid-feedback">Seleccione un estado.</div>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="button" id="libro-cancelar" class="btn btn-outline-secondary">Cancelar</button>
+          </div>
+        </form>
+
+        <!-- Tabla de libros existentes -->
+        <div class="table-responsive mt-4">
+          <table class="table table-striped align-middle" id="tabla-libros">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody><!-- Filas generadas por JS --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 4) GESTIÓN DE USUARIOS (HTML CSS JS) -->
+      <section class="tab-pane fade" id="usuarios" role="tabpanel" aria-labelledby="tab-usuarios">
+        <h2 class="h4">Gestión de Usuarios</h2>
+        <p class="text-muted">Administrar registro y datos de los usuarios.</p>
+
+        <!-- Formulario de alta/edición de usuarios -->
+        <form id="form-usuario" class="row g-3 needs-validation" novalidate>
+          <input type="hidden" id="usuario-id">
+          <div class="col-md-6">
+            <label for="usuario-nombre" class="form-label">Nombre</label>
+            <input type="text" id="usuario-nombre" class="form-control" required>
+            <div class="invalid-feedback">Ingrese un nombre.</div>
+          </div>
+          <div class="col-md-6">
+            <label for="usuario-email" class="form-label">Email</label>
+            <input type="email" id="usuario-email" class="form-control" required>
+            <div class="invalid-feedback">Ingrese un email válido.</div>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <button type="button" id="usuario-cancelar" class="btn btn-outline-secondary">Cancelar</button>
+          </div>
+        </form>
+
+        <!-- Tabla de usuarios -->
+        <div class="table-responsive mt-4">
+          <table class="table table-striped align-middle" id="tabla-usuarios">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody><!-- Filas generadas por JS --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5) CONTROL DE PRÉSTAMOS (HTML CSS JS) -->
+      <section class="tab-pane fade" id="prestamos" role="tabpanel" aria-labelledby="tab-prestamos">
+        <h2 class="h4">Control de Préstamos</h2>
+        <p class="text-muted">Gestionar y aprobar solicitudes de préstamos.</p>
+
+        <!-- Listado de préstamos con acciones -->
+        <div class="table-responsive">
+          <table class="table table-striped align-middle" id="tabla-prestamos">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>ID</th>
+                <th>Libro</th>
+                <th>Préstamo</th>
+                <th>Devolución</th>
+                <th>Estado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody><!-- Filas generadas por JS --></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 6) INFORMES Y ESTADÍSTICAS (JS) -->
+      <section class="tab-pane fade" id="informes" role="tabpanel" aria-labelledby="tab-informes">
+        <h2 class="h4">Informes y Estadísticas</h2>
+        <p class="text-muted">Generar informes de actividad del sistema.</p>
+
+        <!-- Resúmenes rápidos -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Total Préstamos</span>
+                  <strong id="inf-total">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Aprobados</span>
+                  <strong id="inf-aprobados">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Rechazados</span>
+                  <strong id="inf-rechazados">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span>Pendientes</span>
+                  <strong id="inf-pendientes">0</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barras de progreso (distribución por estado) -->
+        <div class="card">
+          <div class="card-body">
+            <h3 class="h6">Distribución de estados</h3>
+            <div class="progress" style="height: 28px;">
+              <div id="bar-aprobados" class="progress-bar bg-success" role="progressbar" style="width: 0%">Aprobados 0%</div>
+              <div id="bar-rechazados" class="progress-bar bg-danger" role="progressbar" style="width: 0%">Rechazados 0%</div>
+              <div id="bar-pendientes" class="progress-bar bg-warning text-dark" role="progressbar" style="width: 0%">Pendientes 0%</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Bootstrap JS bundle (para tabs) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+  <script>
+    /*
+    ===========================================================================
+    Lógica del Panel de Administración (JavaScript inline)
+    - Manejo de sesión de administrador (localStorage)
+    - CRUD para Libros y Usuarios
+    - Gestión de estado de Préstamos
+    - Métricas de Dashboard e Informes
+
+    Estructura:
+    1) Utilidades y persistencia
+    2) Control de acceso (login/logout y gating de tabs)
+    3) Render de Dashboard
+    4) Gestión de Libros (render + formulario + acciones)
+    5) Gestión de Usuarios (render + formulario + acciones)
+    6) Control de Préstamos (render + aprobar/rechazar)
+    7) Informes (resúmenes y progreso)
+    8) Arranque (DOMContentLoaded)
+    ===========================================================================
+    */
+    (function () {
+      'use strict';
+
+      // 1) Utilidades y persistencia -----------------------------------------
+      // Genera un id simple único (timestamp + random) para entidades
+      function uid() {
+        return 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+      }
+
+      // Lee colección de localStorage de forma segura
+      function read(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) { return []; }
+      }
+
+      // Escribe colección en localStorage (silencia errores de cuota)
+      function write(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+      }
+
+      // Claves de almacenamiento por módulo
+      const LS = {
+        admin: 'adminSession',
+        libros: 'libros',
+        usuarios: 'usuarios',
+        prestamos: 'prestamos' // compartido con el panel de usuario
+      };
+
+      // 2) Control de acceso --------------------------------------------------
+      function isLogged() {
+        return localStorage.getItem(LS.admin) === '1';
+      }
+      function login() { localStorage.setItem(LS.admin, '1'); }
+      function logout() { localStorage.removeItem(LS.admin); }
+
+      // Habilita/Deshabilita tabs según sesión
+      function gateTabs() {
+        const needsAuth = ['tab-dashboard', 'tab-libros', 'tab-usuarios', 'tab-prestamos', 'tab-informes'];
+        const logged = isLogged();
+        needsAuth.forEach(id => {
+          const btn = document.getElementById(id);
+          if (!btn) return;
+          btn.disabled = !logged;
+          btn.classList.toggle('disabled', !logged);
+        });
+        // Si no está logueado, llevar a Acceso
+        if (!logged) {
+          const tab = new bootstrap.Tab(document.querySelector('#tab-acceso'));
+          tab.show();
+        }
+      }
+
+      // 3) Render de Dashboard -----------------------------------------------
+      function renderDashboard() {
+        const libros = read(LS.libros);
+        const usuarios = read(LS.usuarios);
+        const prestamos = normalizePrestamos(read(LS.prestamos));
+        const pendientes = prestamos.filter(p => p.estado === 'pendiente').length;
+        setText('metric-libros', libros.length);
+        setText('metric-usuarios', usuarios.length);
+        setText('metric-prestamos', prestamos.length);
+        setText('metric-pendientes', pendientes);
+      }
+
+      // 4) Gestión de Libros --------------------------------------------------
+      function renderLibros() {
+        const tbody = document.querySelector('#tabla-libros tbody');
+        if (!tbody) return;
+        const libros = read(LS.libros);
+        tbody.innerHTML = '';
+        libros.forEach(libro => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${escapeHtml(libro.titulo)}</td>
+            <td>${escapeHtml(libro.autor)}</td>
+            <td>${escapeHtml(libro.categoria)}</td>
+            <td>${badgeEstado(libro.estado)}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-2" data-action="edit" data-id="${libro.id}">Editar</button>
+              <button class="btn btn-sm btn-outline-danger" data-action="del" data-id="${libro.id}">Eliminar</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function onLibroFormSubmit(e) {
+        e.preventDefault();
+        const form = e.currentTarget;
+        if (!form.checkValidity()) {
+          e.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
+        const id = value('#libro-id') || uid();
+        const libro = {
+          id,
+          titulo: value('#libro-titulo').trim(),
+          autor: value('#libro-autor').trim(),
+          categoria: value('#libro-categoria').trim(),
+          estado: value('#libro-estado')
+        };
+        const libros = read(LS.libros);
+        const idx = libros.findIndex(l => l.id === id);
+        if (idx >= 0) libros[idx] = libro; else libros.push(libro);
+        write(LS.libros, libros);
+        formResetLibro();
+        renderLibros();
+        renderDashboard();
+      }
+
+      function onLibrosTableClick(e) {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const libros = read(LS.libros);
+        if (btn.getAttribute('data-action') === 'edit') {
+          const l = libros.find(x => x.id === id);
+          if (!l) return;
+          setValue('#libro-id', l.id);
+          setValue('#libro-titulo', l.titulo);
+          setValue('#libro-autor', l.autor);
+          setValue('#libro-categoria', l.categoria);
+          setValue('#libro-estado', l.estado);
+          document.getElementById('tab-libros').scrollIntoView({ behavior: 'smooth' });
+        } else if (btn.getAttribute('data-action') === 'del') {
+          const filtered = libros.filter(x => x.id !== id);
+          write(LS.libros, filtered);
+          renderLibros();
+          renderDashboard();
+        }
+      }
+
+      function formResetLibro() {
+        const form = document.getElementById('form-libro');
+        form.reset();
+        form.classList.remove('was-validated');
+        setValue('#libro-id', '');
+      }
+
+      // 5) Gestión de Usuarios ------------------------------------------------
+      function renderUsuarios() {
+        const tbody = document.querySelector('#tabla-usuarios tbody');
+        if (!tbody) return;
+        const usuarios = read(LS.usuarios);
+        tbody.innerHTML = '';
+        usuarios.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${escapeHtml(u.nombre)}</td>
+            <td>${escapeHtml(u.email)}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-2" data-action="edit" data-id="${u.id}">Editar</button>
+              <button class="btn btn-sm btn-outline-danger" data-action="del" data-id="${u.id}">Eliminar</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function onUsuarioFormSubmit(e) {
+        e.preventDefault();
+        const form = e.currentTarget;
+        if (!form.checkValidity()) {
+          e.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
+        const id = value('#usuario-id') || uid();
+        const usuario = {
+          id,
+          nombre: value('#usuario-nombre').trim(),
+          email: value('#usuario-email').trim()
+        };
+        const usuarios = read(LS.usuarios);
+        const idx = usuarios.findIndex(x => x.id === id);
+        if (idx >= 0) usuarios[idx] = usuario; else usuarios.push(usuario);
+        write(LS.usuarios, usuarios);
+        formResetUsuario();
+        renderUsuarios();
+        renderDashboard();
+      }
+
+      function onUsuariosTableClick(e) {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const usuarios = read(LS.usuarios);
+        if (btn.getAttribute('data-action') === 'edit') {
+          const u = usuarios.find(x => x.id === id);
+          if (!u) return;
+          setValue('#usuario-id', u.id);
+          setValue('#usuario-nombre', u.nombre);
+          setValue('#usuario-email', u.email);
+          document.getElementById('tab-usuarios').scrollIntoView({ behavior: 'smooth' });
+        } else if (btn.getAttribute('data-action') === 'del') {
+          const filtered = usuarios.filter(x => x.id !== id);
+          write(LS.usuarios, filtered);
+          renderUsuarios();
+          renderDashboard();
+        }
+      }
+
+      function formResetUsuario() {
+        const form = document.getElementById('form-usuario');
+        form.reset();
+        form.classList.remove('was-validated');
+        setValue('#usuario-id', '');
+      }
+
+      // 6) Control de Préstamos ----------------------------------------------
+      function normalizePrestamos(list) {
+        // Garantiza que cada préstamo tenga un estado (pendiente por defecto)
+        return (list || []).map(p => ({ ...p, estado: p.estado || 'pendiente' }));
+      }
+
+      function renderPrestamos() {
+        const tbody = document.querySelector('#tabla-prestamos tbody');
+        if (!tbody) return;
+        const prestamos = normalizePrestamos(read(LS.prestamos));
+        tbody.innerHTML = '';
+        prestamos.forEach((p, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${escapeHtml(p.estudiante?.nombre || '')}</td>
+            <td>${escapeHtml(p.estudiante?.id || '')}</td>
+            <td>${escapeHtml(p.libro?.titulo || '')}</td>
+            <td>${escapeHtml(p.fechas?.prestamo || '')}</td>
+            <td>${escapeHtml(p.fechas?.devolucion || '')}</td>
+            <td>${badgePrestamo(p.estado)}</td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-success me-2" data-action="aprobar" data-idx="${idx}">Aprobar</button>
+              <button class="btn btn-sm btn-danger" data-action="rechazar" data-idx="${idx}">Rechazar</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function onPrestamosTableClick(e) {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const idx = Number(btn.getAttribute('data-idx'));
+        const prestamos = normalizePrestamos(read(LS.prestamos));
+        if (Number.isNaN(idx) || !prestamos[idx]) return;
+        const action = btn.getAttribute('data-action');
+        if (action === 'aprobar') prestamos[idx].estado = 'aprobado';
+        if (action === 'rechazar') prestamos[idx].estado = 'rechazado';
+        write(LS.prestamos, prestamos);
+        renderPrestamos();
+        renderDashboard();
+        renderInformes();
+      }
+
+      // 7) Informes y Estadísticas -------------------------------------------
+      function renderInformes() {
+        const prestamos = normalizePrestamos(read(LS.prestamos));
+        const total = prestamos.length || 1; // evitar división por cero
+        const aprobados = prestamos.filter(p => p.estado === 'aprobado').length;
+        const rechazados = prestamos.filter(p => p.estado === 'rechazado').length;
+        const pendientes = prestamos.filter(p => p.estado === 'pendiente').length;
+
+        setText('inf-total', total === 1 && prestamos.length === 0 ? 0 : prestamos.length);
+        setText('inf-aprobados', aprobados);
+        setText('inf-rechazados', rechazados);
+        setText('inf-pendientes', pendientes);
+
+        // Porcentajes y actualización de barras
+        const pa = Math.round(aprobados * 100 / (prestamos.length || 1));
+        const pr = Math.round(rechazados * 100 / (prestamos.length || 1));
+        const pp = Math.round(pendientes * 100 / (prestamos.length || 1));
+        setBar('bar-aprobados', pa, `Aprobados ${pa}%`);
+        setBar('bar-rechazados', pr, `Rechazados ${pr}%`);
+        setBar('bar-pendientes', pp, `Pendientes ${pp}%`);
+      }
+
+      // Utilidades de UI ------------------------------------------------------
+      function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = String(text);
+      }
+      function setBar(id, width, label) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.width = width + '%';
+        el.textContent = label;
+      }
+      function value(sel) {
+        const el = document.querySelector(sel);
+        return el ? el.value : '';
+      }
+      function setValue(sel, val) {
+        const el = document.querySelector(sel);
+        if (el) el.value = val;
+      }
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+      }
+      function badgeEstado(estado) {
+        const map = { disponible: 'success', prestado: 'danger', reservado: 'warning' };
+        const cls = map[estado] || 'secondary';
+        return `<span class="badge text-bg-${cls}">${escapeHtml(estado || 'N/D')}</span>`;
+      }
+      function badgePrestamo(estado) {
+        const map = { aprobado: 'success', rechazado: 'danger', pendiente: 'warning' };
+        const cls = map[estado] || 'secondary';
+        return `<span class="badge badge-status text-bg-${cls}">${escapeHtml(estado || 'N/D')}</span>`;
+      }
+
+      // 8) Arranque -----------------------------------------------------------
+      document.addEventListener('DOMContentLoaded', () => {
+        // Enlazar eventos de acceso
+        const formLogin = document.getElementById('admin-login');
+        const btnLogout = document.getElementById('admin-logout');
+
+        formLogin.addEventListener('submit', (e) => {
+          e.preventDefault();
+          if (!formLogin.checkValidity()) {
+            e.stopPropagation();
+            formLogin.classList.add('was-validated');
+            return;
+          }
+          // Para demo: cualquier credencial no vacía es válida
+          login();
+          gateTabs();
+          // Cambiar a Dashboard al ingresar
+          const tab = new bootstrap.Tab(document.querySelector('#tab-dashboard'));
+          tab.show();
+        });
+        btnLogout.addEventListener('click', () => {
+          logout();
+          gateTabs();
+          // Volver a Acceso al salir
+          const tab = new bootstrap.Tab(document.querySelector('#tab-acceso'));
+          tab.show();
+        });
+
+        // Eventos Libros
+        document.getElementById('form-libro').addEventListener('submit', onLibroFormSubmit);
+        document.getElementById('libro-cancelar').addEventListener('click', formResetLibro);
+        document.getElementById('tabla-libros').addEventListener('click', onLibrosTableClick);
+
+        // Eventos Usuarios
+        document.getElementById('form-usuario').addEventListener('submit', onUsuarioFormSubmit);
+        document.getElementById('usuario-cancelar').addEventListener('click', formResetUsuario);
+        document.getElementById('tabla-usuarios').addEventListener('click', onUsuariosTableClick);
+
+        // Eventos Préstamos
+        document.getElementById('tabla-prestamos').addEventListener('click', onPrestamosTableClick);
+
+        // Primer render
+        gateTabs();
+        renderDashboard();
+        renderLibros();
+        renderUsuarios();
+        renderPrestamos();
+        renderInformes();
+      });
+    })();
+  </script>
+</body>
+</html>
